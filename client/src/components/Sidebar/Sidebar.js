@@ -3,6 +3,7 @@ import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
 import { Search, Chat, CurrentUser } from "./index.js";
+import { sort } from "../../store/conversations"
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -40,7 +41,7 @@ const Sidebar = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    conversations: state.conversations
+    conversations: sort(state.conversations)
   };
 };
 
