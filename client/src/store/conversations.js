@@ -8,12 +8,6 @@ import {
 
 // UTILITIES
 
-/**
- * sorts conversations in the descending order of 
- * the conversation's latest message's created date
- * if a conversation doesn't have a new message,
- * it is moved down the list
- * */
 export const sort = (conversations) => {
 
   function comparator(convo1, convo2) {
@@ -104,7 +98,7 @@ export const addConversation = (recipientId, newMessage) => {
 const reducer = (state = [], action) => {
   switch (action.type) {
     case GET_CONVERSATIONS:
-      return action.conversations;
+      return sort(action.conversations);
     case SET_MESSAGE:
       return addMessageToStore(state, action.payload);
     case ADD_ONLINE_USER: {
