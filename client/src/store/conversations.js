@@ -6,6 +6,32 @@ import {
   addMessageToStore,
 } from "./utils/reducerFunctions";
 
+// UTILITIES
+
+export const sort = (conversations) => {
+
+  function comparator(convo1, convo2) {
+    const convo1LatestMessage = convo1.messages[convo1.messages.length-1] || {}
+    const convo2LatestMessage = convo2.messages[convo2.messages.length-1] || {}
+
+    if (!convo1LatestMessage.createdAt)
+      // fake convo (usually pops up when searching for users)
+      return 1
+
+    if (!convo2LatestMessage.createdAt)
+      return -1
+
+    const convo1UpdatedAt = Date.parse(convo1LatestMessage.createdAt)
+    const convo2UpdatedAt = Date.parse(convo2LatestMessage.createdAt)
+
+    // descending order
+    return convo2UpdatedAt - convo1UpdatedAt
+  }
+
+  return [...conversations].sort(comparator)
+
+}
+
 // ACTIONS
 
 const GET_CONVERSATIONS = "GET_CONVERSATIONS";
@@ -72,7 +98,7 @@ export const addConversation = (recipientId, newMessage) => {
 const reducer = (state = [], action) => {
   switch (action.type) {
     case GET_CONVERSATIONS:
-      return action.conversations;
+      return sort(action.conversations);
     case SET_MESSAGE:
       return addMessageToStore(state, action.payload);
     case ADD_ONLINE_USER: {

@@ -1,3 +1,24 @@
+const moveConversationToTop = (conversations, predicate, message) => {
+
+  const newConversations = []
+  newConversations.push(null)
+
+  conversations.forEach((convo) => {
+    if (predicate(convo)) {
+      const convoCopy = { ...convo};
+      convoCopy.id = message.conversationId;
+      convoCopy.messages.push(message);
+      convoCopy.latestMessageText = message.text;
+      newConversations[0] = convoCopy
+    } else {
+      newConversations.push(convo)
+    }
+  });
+
+  return newConversations
+}
+
+
 export const addMessageToStore = (state, payload) => {
   const { message, sender } = payload;
   // if sender isn't null, that means the message needs to be put in a brand new convo
@@ -11,15 +32,7 @@ export const addMessageToStore = (state, payload) => {
     return [newConvo, ...state];
   }
 
-  return state.map((convo) => {
-    if (convo.id === message.conversationId) {
-      convo.messages.push(message);
-      convo.latestMessageText = message.text;
-      return convo;
-    } else {
-      return convo;
-    }
-  });
+  return moveConversationToTop(state, (convo) => convo.id === message.conversationId, message)
 };
 
 export const addOnlineUserToStore = (state, id) => {
@@ -67,14 +80,5 @@ export const addSearchedUsersToStore = (state, users) => {
 };
 
 export const addNewConvoToStore = (state, recipientId, message) => {
-  return state.map((convo) => {
-    if (convo.otherUser.id === recipientId) {
-      convo.id = message.conversationId;
-      convo.messages.push(message);
-      convo.latestMessageText = message.text;
-      return convo;
-    } else {
-      return convo;
-    }
-  });
+  return moveConversationToTop(state, (convo) => convo.otherUser.id === recipientId, message);
 };
