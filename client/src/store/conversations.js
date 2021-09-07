@@ -4,7 +4,37 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
+  setMsgsReadInStore,
+  setConvoTypingStateInStore
 } from "./utils/reducerFunctions";
+
+
+// UTILITIES
+
+export const sort = (conversations) => {
+
+  function comparator(convo1, convo2) {
+
+    const convo1LatestMessage = convo1.latestMessage || {};
+    const convo2LatestMessage = convo2.latestMessage || {};
+
+    if (!convo1LatestMessage.createdAt)
+      // fake convo (usually pops up when searching for users)
+      return 1;
+
+    if (!convo2LatestMessage.createdAt)
+      return -1;
+
+    const convo1UpdatedAt = Date.parse(convo1LatestMessage.createdAt);
+    const convo2UpdatedAt = Date.parse(convo2LatestMessage.createdAt);
+
+    // descending order
+    return convo2UpdatedAt - convo1UpdatedAt;
+  }
+
+  return [...conversations].sort(comparator);
+
+}
 
 // ACTIONS
 
@@ -15,6 +45,8 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
+const SET_MSGS_READ = "SET_MSGS_READ";
+const SET_TYPING_STATE = "SET_TYPING_STATE";
 
 // ACTION CREATORS
 
@@ -67,6 +99,21 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
+export const setMsgsRead = (conversation, user, messages) => {
+  return {
+    type: SET_MSGS_READ,
+    payload: { conversation, user, messages }
+  };
+};
+
+export const setConvoTypingState = (conversationId, isTyping) => {
+  return {
+    type: SET_TYPING_STATE,
+    conversationId,
+    isTyping
+  }
+}
+
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -91,6 +138,10 @@ const reducer = (state = [], action) => {
         action.payload.recipientId,
         action.payload.newMessage
       );
+    case SET_MSGS_READ:
+      return setMsgsReadInStore(state, action.payload);
+    case SET_TYPING_STATE:
+      return setConvoTypingStateInStore(state, action.conversationId, action.isTyping);
     default:
       return state;
   }

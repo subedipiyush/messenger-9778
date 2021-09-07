@@ -39,7 +39,7 @@ async function seed() {
     text: "I'm from New York",
   });
   await Message.create({
-    conversationId: santaigoConvo.id,
+    unreadConversationId: santaigoConvo.id,
     senderId: santiago.id,
     text: "Share photo of your city, please",
   });
@@ -56,7 +56,7 @@ async function seed() {
     user2Id: thomas.id,
   });
   await Message.create({
-    conversationId: chiumboConvo.id,
+    unreadConversationId: chiumboConvo.id,
     senderId: chiumbo.id,
     text: "Sure! What time?",
   });
@@ -75,14 +75,14 @@ async function seed() {
 
   for (let i = 0; i < 11; i++) {
     await Message.create({
-      conversationId: hualingConvo.id,
+      unreadConversationId: hualingConvo.id,
       senderId: hualing.id,
       text: "a test message",
     });
   }
 
   await Message.create({
-    conversationId: hualingConvo.id,
+    unreadConversationId: hualingConvo.id,
     senderId: hualing.id,
     text: "😂 😂 😂",
   });

@@ -1,6 +1,8 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Box, Typography, Avatar } from "@material-ui/core";
+import { Box, Typography, Avatar, SvgIcon } from "@material-ui/core";
+import { ReactComponent as TypingBubble } from '../../assets/images/bubble.svg';
+
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -33,17 +35,31 @@ const useStyles = makeStyles(() => ({
 
 const OtherUserBubble = (props) => {
   const classes = useStyles();
-  const { text, time, otherUser } = props;
+  const { text, time, otherUser, isTyping } = props;
   return (
     <Box className={classes.root}>
       <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.avatar}></Avatar>
       <Box>
-        <Typography className={classes.usernameDate}>
-          {otherUser.username} {time}
-        </Typography>
-        <Box className={classes.bubble}>
-          <Typography className={classes.text}>{text}</Typography>
-        </Box>
+        { isTyping && 
+          <>
+          <Typography className={classes.usernameDate}>
+            {otherUser.username}
+          </Typography>
+          <Box className={classes.bubble}>
+            <SvgIcon component={TypingBubble} viewBox="0 0 67 67"/>
+          </Box>
+          </>
+        }
+        { !isTyping && 
+          <>
+          <Typography className={classes.usernameDate}>
+            {otherUser.username} {time}
+          </Typography>
+          <Box className={classes.bubble}>
+            <Typography className={classes.text}>{text}</Typography> 
+          </Box> 
+          </>
+        }
       </Box>
     </Box>
   );

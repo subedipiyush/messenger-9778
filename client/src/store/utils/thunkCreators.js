@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  setMsgsRead
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -117,3 +118,29 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
     console.error(error);
   }
 };
+
+const sendMsgsRead = (conversation, user, messages) => {
+  socket.emit("msgs-read", {
+    conversation,
+    user,
+    messages
+  });
+}
+
+export const clearUnreadMsgsForUser = (conversation, user) => async (dispatch) => {
+  try {
+    if (conversation.unreadMsgs && conversation.unreadMsgs.length > 0) {
+
+      const userSpecificMsgs = conversation.unreadMsgs.filter((msg) => msg.senderId !== user.id );
+      if (userSpecificMsgs.length > 0) {
+        const { data } = await axios.post(`/api/conversations/moveToRead`, { conversationId: conversation.id, unreadMsgs: userSpecificMsgs });
+
+        dispatch(setMsgsRead(conversation, user, data.messages));
+
+        sendMsgsRead(conversation, user, userSpecificMsgs);
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}

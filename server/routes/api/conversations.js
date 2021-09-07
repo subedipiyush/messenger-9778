@@ -21,7 +21,8 @@ router.get("/", async (req, res, next) => {
       attributes: ["id"],
       order: [[Message, "createdAt", "DESC"]],
       include: [
-        { model: Message, order: ["createdAt", "DESC"] },
+        { model: Message, as: "messages" },
+        { model: Message, as: "unreadMsgs" },
         {
           model: User,
           as: "user1",
@@ -45,6 +46,10 @@ router.get("/", async (req, res, next) => {
           required: false,
         },
       ],
+      order: [
+        [{ model: Message, as: "messages" }, "createdAt", "ASC" ],
+        [{ model: Message, as: "unreadMsgs" }, "createdAt", "ASC" ],
+      ]
     });
 
     for (let i = 0; i < conversations.length; i++) {
@@ -68,11 +73,28 @@ router.get("/", async (req, res, next) => {
       }
 
       // set properties for notification count and latest message preview
-      convoJSON.latestMessageText = convoJSON.messages[0].text;
+      const latestMessages = (convoJSON.unreadMsgs && convoJSON.unreadMsgs.length > 0) ? convoJSON.unreadMsgs: convoJSON.messages;
+      convoJSON.latestMessage = latestMessages[latestMessages.length - 1];
       conversations[i] = convoJSON;
     }
 
     res.json(conversations);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// to be caleld when unread msgs are read
+router.post("/moveToRead", async (req, res, next) => {
+  try {
+    const { conversationId, unreadMsgs } = req.body;
+
+    const conversation = await Conversation.findOne({ where: { id: conversationId }});
+
+    await conversation.addMessages(unreadMsgs.map((msg) => msg.id));
+    await conversation.removeUnreadMsgs(unreadMsgs.map((msg) => msg.id));
+
+    res.json({ "messages": unreadMsgs });
   } catch (error) {
     next(error);
   }
