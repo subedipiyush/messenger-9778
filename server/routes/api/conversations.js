@@ -19,7 +19,6 @@ router.get("/", async (req, res, next) => {
         },
       },
       attributes: ["id"],
-      order: [[Message, "createdAt", "DESC"]],
       include: [
         { model: Message, as: "messages" },
         { model: Message, as: "unreadMsgs" },
