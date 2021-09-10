@@ -39,8 +39,6 @@ const Input = (props) => {
   const handleChange = (event) => {
     setText(event.target.value);
     if (conversationId) {
-      // TODO: set wait timeout such that this is fired only after a certain period
-      // currently a notification is sent with every character typed 
       sendTypingState(conversationId, event.target.value);
     }
   };

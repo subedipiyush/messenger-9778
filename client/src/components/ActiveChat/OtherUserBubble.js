@@ -1,7 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Box, Typography, Avatar, SvgIcon } from "@material-ui/core";
-import { ReactComponent as TypingBubble } from '../../assets/images/bubble.svg';
+import { Box, Typography, Avatar } from "@material-ui/core";
 
 
 const useStyles = makeStyles(() => ({
@@ -40,26 +39,12 @@ const OtherUserBubble = (props) => {
     <Box className={classes.root}>
       <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.avatar}></Avatar>
       <Box>
-        { isTyping && 
-          <>
-          <Typography className={classes.usernameDate}>
-            {otherUser.username}
-          </Typography>
-          <Box className={classes.bubble}>
-            <SvgIcon component={TypingBubble} viewBox="0 0 67 67"/>
-          </Box>
-          </>
-        }
-        { !isTyping && 
-          <>
-          <Typography className={classes.usernameDate}>
-            {otherUser.username} {time}
-          </Typography>
-          <Box className={classes.bubble}>
-            <Typography className={classes.text}>{text}</Typography> 
-          </Box> 
-          </>
-        }
+        <Typography className={classes.usernameDate}>
+          {otherUser.username} {!isTyping && time}
+        </Typography>
+        <Box className={classes.bubble}>
+          <Typography className={classes.text}>{isTyping ? '...' : text}</Typography>
+        </Box>
       </Box>
     </Box>
   );

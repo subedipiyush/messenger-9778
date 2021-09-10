@@ -1,59 +1,63 @@
 import React from "react";
 import { Box, Avatar } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, styled } from "@material-ui/core/styles";
 import { SenderBubble, OtherUserBubble } from "../ActiveChat";
+import { theme } from '../../themes/theme'
 import moment from "moment";
-
 
 const useStyles = makeStyles(() => ({
   rightAligned: {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-end"
-  },
-  miniAvatar: {
-    height: 15,
-    width: 15,
-    marginRight: 11,
-    marginTop: 6
   }
 }));
+
+const MiniAvatar = styled(Avatar)({
+  height: theme.spacing(2),
+  width: theme.spacing(2),
+  marginRight: theme.spacing(1.5),
+  marginTop: theme.spacing(0.8)
+});
 
 const Messages = (props) => {
   const classes = useStyles();
 
-  const { messages, unreadMsgs, otherUser, userId } = props;
+  const { messages, otherUser, userId } = props;
+
+  const firstUnseenMsgIdx = messages.findIndex((msg) => !msg.seen);
+
+  const seenMsgs = messages.slice(0, firstUnseenMsgIdx == -1 ? messages.length : firstUnseenMsgIdx);
+  const unseenMsgs = messages.slice(firstUnseenMsgIdx == -1 ? messages.length : firstUnseenMsgIdx, messages.length); 
 
   return (
     <Box>
-      <Box>
-        {messages.map((message) => {
+      {seenMsgs.map((message) => {
           const time = moment(message.createdAt).format("h:mm");
 
           return message.senderId === userId ? (
             <SenderBubble key={message.id} text={message.text} time={time} />
           ) : (
-            <OtherUserBubble key={message.id} text={message.text} time={time} otherUser={otherUser} isTyping={false}/>
+            <OtherUserBubble key={message.id} text={message.text} time={time} otherUser={otherUser} isTyping={false} />
           );
-        })}
-      </Box>
-      <Box className={classes.rightAligned}>
-        <Avatar alt={otherUser.username} src={otherUser.photoUrl} className={classes.miniAvatar}></Avatar>
-      </Box>
-      <Box>
-        {unreadMsgs.map((message) => {
+        })
+      }
+      {seenMsgs.length > 0 &&
+        (<Box className={classes.rightAligned}>
+          <MiniAvatar alt={otherUser.username} src={otherUser.photoUrl}></MiniAvatar>
+        </Box>)
+      }
+      {unseenMsgs.map((message) => {
           const time = moment(message.createdAt).format("h:mm");
 
-          return message.senderId === userId ? (
+          return (
             <SenderBubble key={message.id} text={message.text} time={time} />
-          ) : (
-            <OtherUserBubble key={message.id} text={message.text} time={time} otherUser={otherUser} isTyping={false}/>
           );
-        })}
-      </Box>
+        })
+      }
       <Box>
         {otherUser.isTyping &&
-          <OtherUserBubble key="{'pendingMsgKey' + message.id}" text="" time="" otherUser={otherUser} isTyping={true} />
+          <OtherUserBubble key="pendingMsgKey" text="" time="" otherUser={otherUser} isTyping={true} />
         }
       </Box>
     </Box>

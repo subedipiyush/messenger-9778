@@ -6,9 +6,9 @@ const moveConversationToTop = (conversations, predicate, message) => {
   conversations.forEach((convo) => {
     if (predicate(convo)) {
       const convoCopy = { ...convo};
-      convoCopy.id = message.unreadConversationId;
-      convoCopy.unreadMsgs.push(message);
-      convoCopy.latestMessage = message;
+      convoCopy.id = message.conversationId;
+      convoCopy.messages.push(message);
+      convoCopy.latestMessageText = message.text;
       if (convoCopy.otherUser.id === message.senderId){
         convoCopy.otherUser.isTyping = false;
       }
@@ -27,17 +27,16 @@ export const addMessageToStore = (state, payload) => {
   // if sender isn't null, that means the message needs to be put in a brand new convo
   if (sender !== null) {
     const newConvo = {
-      id: message.unreadConversationId ,
+      id: message.conversationId ,
       otherUser: sender,
-      messages: [],
-      unreadMsgs: [message]
+      messages: [message]
     };
-    newConvo.latestMessage = message;
+    newConvo.latestMessageText = message.text;
     newConvo.otherUser.isTyping = false;
     return [newConvo, ...state];
   }
 
-  return moveConversationToTop(state, (convo) => convo.id === message.unreadConversationId, message);
+  return moveConversationToTop(state, (convo) => convo.id === message.conversationId, message);
 };
 
 export const addOnlineUserToStore = (state, id) => {
@@ -89,18 +88,18 @@ export const addNewConvoToStore = (state, recipientId, message) => {
   return moveConversationToTop(state, (convo) => convo.otherUser.id === recipientId, message);
 };
 
-export const setMsgsReadInStore = (state, payload) => {
-  const { conversation, user, messages } = payload;
+export const setMsgsSeenInStore = (state, payload) => {
+  const { conversation, userId } = payload;
 
   return state.map((convo) => {
     if (convo.id === conversation.id) {
       const convoCopy = { ...convo };
-      convoCopy.messages = convoCopy.messages.concat(messages.map((msg) => { 
-        msg.conversationId = conversation.Id;
-        msg.unreadConversationId = null;
+      convoCopy.messages = convoCopy.messages.map((msg) => {
+        if (msg.senderId !== userId) {
+          msg.seen = true
+        }
         return msg;
-      }));
-      convoCopy.unreadMsgs = convoCopy.unreadMsgs.filter((msg) => msg.senderId === user.id);
+      });
       return convoCopy;
     } else {
       return convo;

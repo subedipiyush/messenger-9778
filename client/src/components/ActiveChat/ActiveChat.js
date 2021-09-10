@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Box } from "@material-ui/core";
 import { Input, Header, Messages } from "./index";
 import { connect } from "react-redux";
-import { clearUnreadMsgsForUser } from "../../store/utils/thunkCreators";
+import { setMsgsSeenForUser } from "../../store/utils/thunkCreators";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -23,11 +23,11 @@ const useStyles = makeStyles(() => ({
 
 const ActiveChat = (props) => {
   const classes = useStyles();
-  const { user, clearUnreadMsgsForUser } = props;
+  const { user, setMsgsSeenForUser } = props;
   const conversation = props.conversation || {};
 
   useEffect(() => {
-    clearUnreadMsgsForUser(conversation, user);
+    setMsgsSeenForUser(conversation, user);
   });
 
   return (
@@ -41,7 +41,6 @@ const ActiveChat = (props) => {
           <Box className={classes.chatContainer}>
             <Messages
               messages={conversation.messages}
-              unreadMsgs={conversation.unreadMsgs}
               otherUser={conversation.otherUser}
               userId={user.id}
             />
@@ -70,8 +69,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    clearUnreadMsgsForUser: (conversation, user) => {
-      dispatch(clearUnreadMsgsForUser(conversation, user));
+    setMsgsSeenForUser: (conversation, user) => {
+      dispatch(setMsgsSeenForUser(conversation, user));
     }
   };
 };

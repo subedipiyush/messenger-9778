@@ -5,7 +5,7 @@ import {
   removeOfflineUser,
   addOnlineUser,
   setConvoTypingState,
-  setMsgsRead
+  msgsSeenByUser
 } from "./store/conversations";
 
 const socket = io(window.location.origin);
@@ -25,8 +25,8 @@ socket.on("connect", () => {
     store.dispatch(setNewMessage(data.message, data.sender));
   });
 
-  socket.on("msgs-read", (data) => {
-    store.dispatch(setMsgsRead(data.conversation, data.user, data.messages));
+  socket.on("msgs-seen", (data) => {
+    store.dispatch(msgsSeenByUser(data.conversation, data.userId));
   });
 
   socket.on("typing-message", (data) => {

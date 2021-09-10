@@ -5,7 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
-  setMsgsRead
+  msgsSeenByUser
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -119,27 +119,26 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   }
 };
 
-const sendMsgsRead = (conversation, user, messages) => {
-  socket.emit("msgs-read", {
+const sendSeenStatus = (conversation, userId) => {
+  socket.emit("msgs-seen", {
     conversation,
-    user,
-    messages
+    userId
   });
 }
 
-export const clearUnreadMsgsForUser = (conversation, user) => async (dispatch) => {
+export const setMsgsSeenForUser = (conversation, user) => async (dispatch) => {
   try {
-    if (conversation.unreadMsgs && conversation.unreadMsgs.length > 0) {
+    const unSeenMsgs = (conversation.messages && conversation.messages.filter((msg) => msg.senderId !== user.id && !msg.seen)) || 0;
 
-      const userSpecificMsgs = conversation.unreadMsgs.filter((msg) => msg.senderId !== user.id );
-      if (userSpecificMsgs.length > 0) {
-        const { data } = await axios.post(`/api/conversations/moveToRead`, { conversationId: conversation.id, unreadMsgs: userSpecificMsgs });
+    if (unSeenMsgs.length > 0) {
 
-        dispatch(setMsgsRead(conversation, user, data.messages));
+      const { data } = await axios.patch(`/api/messages/seen`, null, { params: {conversationId: conversation.id} });
 
-        sendMsgsRead(conversation, user, userSpecificMsgs);
-      }
+      dispatch(msgsSeenByUser(conversation, data.userId));
+
+      sendSeenStatus(conversation, data.userId);
     }
+
   } catch (error) {
     console.error(error);
   }

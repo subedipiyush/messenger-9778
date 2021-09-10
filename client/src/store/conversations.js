@@ -4,7 +4,7 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
-  setMsgsReadInStore,
+  setMsgsSeenInStore,
   setConvoTypingStateInStore
 } from "./utils/reducerFunctions";
 
@@ -43,7 +43,7 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
-const SET_MSGS_READ = "SET_MSGS_READ";
+const SET_MSGS_SEEN = "SET_MSGS_SEEN";
 const SET_TYPING_STATE = "SET_TYPING_STATE";
 
 // ACTION CREATORS
@@ -97,10 +97,10 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
-export const setMsgsRead = (conversation, user, messages) => {
+export const msgsSeenByUser = (conversation, userId) => {
   return {
-    type: SET_MSGS_READ,
-    payload: { conversation, user, messages }
+    type: SET_MSGS_SEEN,
+    payload: { conversation, userId }
   };
 };
 
@@ -136,8 +136,8 @@ const reducer = (state = [], action) => {
         action.payload.recipientId,
         action.payload.newMessage
       );
-    case SET_MSGS_READ:
-      return setMsgsReadInStore(state, action.payload);
+    case SET_MSGS_SEEN:
+      return setMsgsSeenInStore(state, action.payload);
     case SET_TYPING_STATE:
       return setConvoTypingStateInStore(state, action.conversationId, action.isTyping);
     default:

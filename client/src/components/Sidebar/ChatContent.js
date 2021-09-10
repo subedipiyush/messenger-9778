@@ -32,11 +32,12 @@ const ChatContent = (props) => {
   const classes = useStyles();
 
   const { conversation } = props;
-  const { latestMessage, otherUser, unreadMsgs } = conversation;
+  const { latestMessageText, otherUser } = conversation;
 
   const typingDisplayText = 'Typing...';
 
-  const numberOfUnreadMsgs = unreadMsgs.filter((msg) => msg.senderId === otherUser.id).length;
+  const unseenMsgsCount = conversation.messages
+                            .filter((msg) => msg.senderId === otherUser.id && !msg.seen).length;
 
   return (
     <Box className={classes.root}>
@@ -46,20 +47,19 @@ const ChatContent = (props) => {
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={8}>
-            { otherUser.isTyping && 
+            { otherUser.isTyping ? ( 
               <Typography className={classes.previewText + ' ' + classes.typingText}>
                 {typingDisplayText}
-              </Typography>
-            }
-            { !otherUser.isTyping && 
-              <Typography className={numberOfUnreadMsgs > 0 ? classes.unreadText : classes.previewText}>
-                {latestMessage.text}
-              </Typography>
+              </Typography>) : (
+                <Typography className={unseenMsgsCount > 0 ? classes.unreadText : classes.previewText}>
+                  {latestMessageText}
+                </Typography>
+              )
             }
           </Grid>
           <Grid item xs={4}>
             { !otherUser.isTyping && 
-              <Badge badgeContent={numberOfUnreadMsgs} color="primary"></Badge>
+              <Badge badgeContent={unseenMsgsCount} color="primary"></Badge>
             }
           </Grid>
         </Grid>

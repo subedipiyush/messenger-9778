@@ -47,11 +47,10 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("msgs-read", (data) => {
-    socket.broadcast.emit("msgs-read", {
+  socket.on("msgs-seen", (data) => {
+    socket.broadcast.emit("msgs-seen", {
       conversation: data.conversation,
-      user: data.user,
-      messages: data.messages
+      userId: data.userId
     });
   });
 
