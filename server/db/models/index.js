@@ -13,6 +13,7 @@ Conversation.hasMany(Message);
 
 Group.belongsToMany(User, { through: UserGroup });
 User.belongsToMany(Group, { through: UserGroup });
+UserGroup.hasOne(Message, { as: 'lastSeenMsg' });
 Conversation.belongsTo(Group);
 
 module.exports = {
