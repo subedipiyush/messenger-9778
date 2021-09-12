@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  msgsSeenByUser
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -117,3 +118,24 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
     console.error(error);
   }
 };
+
+const sendSeenStatus = (conversation, userId) => {
+  socket.emit("msgs-seen", {
+    conversation,
+    userId
+  });
+}
+
+export const setMsgsSeenForUser = (conversation, user) => async (dispatch) => {
+  try {
+
+    const { data } = await axios.patch(`/api/messages/seen`, null, { params: {conversationId: conversation.id} });
+
+    dispatch(msgsSeenByUser(conversation, data.userId));
+
+    sendSeenStatus(conversation, data.userId);
+
+  } catch (error) {
+    console.error(error);
+  }
+}

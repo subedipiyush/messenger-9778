@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const { Conversation, Message } = require("../../db/models");
 const onlineUsers = require("../../onlineUsers");
+const { Op } = require("sequelize");
+
 
 // expects {recipientId, text, conversationId } in body (conversationId will be null if no conversation exists yet)
 router.post("/", async (req, res, next) => {
@@ -38,6 +40,38 @@ router.post("/", async (req, res, next) => {
       conversationId: conversation.id,
     });
     res.json({ message, sender });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// call when messages are seen by the current user
+router.patch("/seen", async (req, res, next) => {
+  try {
+
+    if (!req.user) {
+      return res.sendStatus(401);
+    }
+    const userId = req.user.id;
+    const { conversationId } = req.query;
+
+    // check if the user is part of the conversation
+    const convo = await Conversation.findByPk(conversationId);
+    if (![convo.user1Id, convo.user2Id].includes(userId)) {
+      return res.sendStatus(401);
+    }
+
+    const updatedMsgs = await Message.update({ seen: true }, 
+      { where: { [Op.and]: 
+                  [
+                    { conversationId: conversationId }, 
+                    { senderId: { [Op.ne]: userId } }
+                  ]
+                }
+        }
+    );
+
+    res.json({ userId });
   } catch (error) {
     next(error);
   }

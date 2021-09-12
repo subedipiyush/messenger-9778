@@ -3,6 +3,7 @@ import { FormControl, FilledInput } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
 import { postMessage } from "../../store/utils/thunkCreators";
+import socket from "../../socket";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -17,6 +18,19 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
+
+const sendTypingState = (conversationId, text) => {
+  try {
+    const isTyping = text && text.length > 0;
+    socket.emit("typing-message", {
+      conversationId,
+      isTyping
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 const Input = (props) => {
   const classes = useStyles();
   const [text, setText] = useState("");
@@ -24,6 +38,9 @@ const Input = (props) => {
 
   const handleChange = (event) => {
     setText(event.target.value);
+    if (conversationId) {
+      sendTypingState(conversationId, event.target.value);
+    }
   };
 
   const handleSubmit = async (event) => {

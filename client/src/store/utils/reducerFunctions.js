@@ -9,9 +9,13 @@ const moveConversationToTop = (conversations, predicate, message) => {
       convoCopy.id = message.conversationId;
       convoCopy.messages.push(message);
       convoCopy.latestMessageText = message.text;
-      newConversations[0] = convoCopy
+      if (convoCopy.otherUser.id === message.senderId){
+        convoCopy.otherUser.isTyping = false;
+        convoCopy.numberOfUnseenMsgs += 1;
+      }
+      newConversations[0] = convoCopy;
     } else {
-      newConversations.push(convo)
+      newConversations.push(convo);
     }
   });
 
@@ -24,15 +28,17 @@ export const addMessageToStore = (state, payload) => {
   // if sender isn't null, that means the message needs to be put in a brand new convo
   if (sender !== null) {
     const newConvo = {
-      id: message.conversationId,
+      id: message.conversationId ,
       otherUser: sender,
-      messages: [message],
+      messages: [message]
     };
     newConvo.latestMessageText = message.text;
+    newConvo.otherUser.isTyping = false;
+    newConvo.numberOfUnseenMsgs = 0;
     return [newConvo, ...state];
   }
 
-  return moveConversationToTop(state, (convo) => convo.id === message.conversationId, message)
+  return moveConversationToTop(state, (convo) => convo.id === message.conversationId, message);
 };
 
 export const addOnlineUserToStore = (state, id) => {
@@ -79,6 +85,38 @@ export const addSearchedUsersToStore = (state, users) => {
   return newState;
 };
 
+
 export const addNewConvoToStore = (state, recipientId, message) => {
   return moveConversationToTop(state, (convo) => convo.otherUser.id === recipientId, message);
 };
+
+export const setMsgsSeenInStore = (state, payload) => {
+  const { conversation, userId } = payload;
+
+  return state.map((convo) => {
+    if (convo.id === conversation.id) {
+      const convoCopy = { ...convo };
+      if (convoCopy.otherUser.id === userId) {
+        convoCopy.otherUser.lastSeenMsg = convoCopy.messages[convoCopy.messages.length - 1]; 
+      } else {
+        convoCopy.numberOfUnseenMsgs = 0;
+      }
+      return convoCopy;
+    } else {
+      return convo;
+    }
+  });
+};
+
+
+export const setConvoTypingStateInStore = (state, conversationId, isTyping) => {
+  return state.map((convo) => {
+    if (convo.id === conversationId) {
+      const convoCopy = { ...convo };
+      convoCopy.otherUser.isTyping = isTyping;
+      return convoCopy;
+    } else {
+      return convo;
+    }
+  });
+}

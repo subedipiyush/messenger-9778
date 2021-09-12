@@ -43,7 +43,21 @@ io.on("connection", (socket) => {
   socket.on("new-message", (data) => {
     socket.broadcast.emit("new-message", {
       message: data.message,
-      sender: data.sender,
+      sender: data.sender
+    });
+  });
+
+  socket.on("msgs-seen", (data) => {
+    socket.broadcast.emit("msgs-seen", {
+      conversation: data.conversation,
+      userId: data.userId
+    });
+  });
+
+  socket.on("typing-message", (data) => {
+    socket.broadcast.emit("typing-message", {
+      conversationId: data.conversationId,
+      isTyping: data.isTyping,
     });
   });
 
