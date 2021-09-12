@@ -2,17 +2,24 @@ import React, { useState } from "react";
 import { Redirect, useHistory } from "react-router-dom";
 import { connect } from "react-redux";
 import {
-  Grid,
   Box,
+  Grid,
+  Paper,
   Typography,
-  Button,
-  FormControl,
-  TextField,
-  FormHelperText,
 } from "@material-ui/core";
 import { register } from "./store/utils/thunkCreators";
+import { makeStyles } from '@material-ui/core/styles';
+import { Form, AppLogo } from './components';
+import { LargeButton } from './common.style';
+
+const useStyles = makeStyles({
+  root: {
+    height: '100vh'
+  }
+});
 
 const Login = (props) => {
+  const classes = useStyles();
   const history = useHistory();
   const { user, register } = props;
   const [formErrorMessage, setFormErrorMessage] = useState({});
@@ -37,74 +44,41 @@ const Login = (props) => {
   }
 
   return (
-    <Grid container justify="center">
-      <Box>
-        <Grid container item>
-          <Typography>Need to log in?</Typography>
-          <Button onClick={() => history.push("/login")}>Login</Button>
-        </Grid>
-        <form onSubmit={handleRegister}>
-          <Grid>
-            <Grid>
-              <FormControl>
-                <TextField
-                  aria-label="username"
-                  label="Username"
-                  name="username"
-                  type="text"
-                  required
-                />
-              </FormControl>
+    <Grid container component="main" className={classes.root}>
+      <Grid item container xs={false} sm={5} md={5} direction="column">
+        <AppLogo />
+      </Grid>
+      <Grid item container xs={12} sm={7} md={7} direction="column" component={Paper} elevation={1}>
+        <Box p={2} m={2}>
+          <Grid item container direction="row" justifyContent="flex-end" alignItems="center" spacing={2}>
+            <Grid item>
+              <Typography color="textSecondary" size="small">
+                Already have an account?
+              </Typography>
             </Grid>
-            <Grid>
-              <FormControl>
-                <TextField
-                  label="E-mail address"
-                  aria-label="e-mail address"
-                  type="email"
-                  name="email"
-                  required
-                />
-              </FormControl>
+            <Grid item>
+              <Box boxShadow={2} bgcolor="background.paper">
+                <LargeButton onClick={() => history.push("/login")} color="primary">
+                  Login
+                </LargeButton>
+              </Box>
             </Grid>
-            <Grid>
-              <FormControl error={!!formErrorMessage.confirmPassword}>
-                <TextField
-                  aria-label="password"
-                  label="Password"
-                  type="password"
-                  inputProps={{ minLength: 6 }}
-                  name="password"
-                  required
-                />
-                <FormHelperText>
-                  {formErrorMessage.confirmPassword}
-                </FormHelperText>
-              </FormControl>
-            </Grid>
-            <Grid>
-              <FormControl error={!!formErrorMessage.confirmPassword}>
-                <TextField
-                  label="Confirm Password"
-                  aria-label="confirm password"
-                  type="password"
-                  inputProps={{ minLength: 6 }}
-                  name="confirmPassword"
-                  required
-                />
-                <FormHelperText>
-                  {formErrorMessage.confirmPassword}
-                </FormHelperText>
-              </FormControl>
-            </Grid>
-            <Button type="submit" variant="contained" size="large">
-              Create
-            </Button>
           </Grid>
-        </form>
-      </Box>
+          <Form title="Create an account." 
+                buttonText="Create"
+                onSubmitHandler={handleRegister}
+                inputFields={[
+                  {ariaLabel: "username", label: "Username", name: "username", type: "text"},
+                  {ariaLabel: "e-mail address", label: "E-mail address", name: "email", type: "email"},
+                  {ariaLabel: "password", label: "Password", name: "password", type: "password", inputProps: {minLength: 6}, error: { on: !!formErrorMessage.confirmPassword, msg: formErrorMessage.confirmPassword }},
+                  {ariaLabel: "confirm password", label: "Confirm Password", name: "confirmPassword", type: "password", inputProps: {minLength: 6}, error: { on: !!formErrorMessage.confirmPassword, msg: formErrorMessage.confirmPassword }},
+                ]}
+          />
+        </Box>
+      </Grid>
     </Grid>
   );
+
 };
 
 const mapStateToProps = (state) => {
