@@ -11,6 +11,7 @@ const moveConversationToTop = (conversations, predicate, message) => {
       convoCopy.latestMessageText = message.text;
       if (convoCopy.otherUser.id === message.senderId){
         convoCopy.otherUser.isTyping = false;
+        convoCopy.numberOfUnseenMsgs += 1;
       }
       newConversations[0] = convoCopy;
     } else {
@@ -33,6 +34,7 @@ export const addMessageToStore = (state, payload) => {
     };
     newConvo.latestMessageText = message.text;
     newConvo.otherUser.isTyping = false;
+    newConvo.numberOfUnseenMsgs = 0;
     return [newConvo, ...state];
   }
 
@@ -94,12 +96,11 @@ export const setMsgsSeenInStore = (state, payload) => {
   return state.map((convo) => {
     if (convo.id === conversation.id) {
       const convoCopy = { ...convo };
-      convoCopy.messages = convoCopy.messages.map((msg) => {
-        if (msg.senderId !== userId) {
-          msg.seen = true
-        }
-        return msg;
-      });
+      if (convoCopy.otherUser.id === userId) {
+        convoCopy.otherUser.lastSeenMsg = convoCopy.messages[convoCopy.messages.length - 1]; 
+      } else {
+        convoCopy.numberOfUnseenMsgs = 0;
+      }
       return convoCopy;
     } else {
       return convo;

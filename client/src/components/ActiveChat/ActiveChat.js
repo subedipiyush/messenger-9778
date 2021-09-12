@@ -27,7 +27,9 @@ const ActiveChat = (props) => {
   const conversation = props.conversation || {};
 
   useEffect(() => {
-    setMsgsSeenForUser(conversation, user);
+    if (conversation && conversation.numberOfUnseenMsgs > 0) {
+      setMsgsSeenForUser(conversation, user);
+    }
   });
 
   return (

@@ -25,33 +25,22 @@ const Messages = (props) => {
 
   const { messages, otherUser, userId } = props;
 
-  const firstUnseenMsgIdx = messages.findIndex((msg) => !msg.seen);
-
-  const seenMsgs = messages.slice(0, firstUnseenMsgIdx == -1 ? messages.length : firstUnseenMsgIdx);
-  const unseenMsgs = messages.slice(firstUnseenMsgIdx == -1 ? messages.length : firstUnseenMsgIdx, messages.length); 
-
   return (
     <Box>
-      {seenMsgs.map((message) => {
+      {messages.map((message) => {
           const time = moment(message.createdAt).format("h:mm");
 
           return message.senderId === userId ? (
+            <>
             <SenderBubble key={message.id} text={message.text} time={time} />
+            {message.id === otherUser.lastSeenMsg.id && 
+              <Box key={"mini-avatar-" + message.id} className={classes.rightAligned}>
+                <MiniAvatar alt={otherUser.username} src={otherUser.photoUrl}></MiniAvatar>
+              </Box>
+            }
+            </>
           ) : (
             <OtherUserBubble key={message.id} text={message.text} time={time} otherUser={otherUser} isTyping={false} />
-          );
-        })
-      }
-      {seenMsgs.length > 0 &&
-        (<Box className={classes.rightAligned}>
-          <MiniAvatar alt={otherUser.username} src={otherUser.photoUrl}></MiniAvatar>
-        </Box>)
-      }
-      {unseenMsgs.map((message) => {
-          const time = moment(message.createdAt).format("h:mm");
-
-          return (
-            <SenderBubble key={message.id} text={message.text} time={time} />
           );
         })
       }

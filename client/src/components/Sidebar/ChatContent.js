@@ -36,8 +36,7 @@ const ChatContent = (props) => {
 
   const typingDisplayText = 'Typing...';
 
-  const unseenMsgsCount = conversation.messages
-                            .filter((msg) => msg.senderId === otherUser.id && !msg.seen).length;
+  const unseenMsgsCount = conversation.numberOfUnseenMsgs;
 
   return (
     <Box className={classes.root}>
@@ -58,7 +57,7 @@ const ChatContent = (props) => {
             }
           </Grid>
           <Grid item xs={4}>
-            { !otherUser.isTyping && 
+            { !otherUser.isTyping && unseenMsgsCount > 0 &&
               <Badge badgeContent={unseenMsgsCount} color="primary"></Badge>
             }
           </Grid>

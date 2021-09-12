@@ -128,16 +128,12 @@ const sendSeenStatus = (conversation, userId) => {
 
 export const setMsgsSeenForUser = (conversation, user) => async (dispatch) => {
   try {
-    const unSeenMsgs = (conversation.messages && conversation.messages.filter((msg) => msg.senderId !== user.id && !msg.seen)) || 0;
 
-    if (unSeenMsgs.length > 0) {
+    const { data } = await axios.patch(`/api/messages/seen`, null, { params: {conversationId: conversation.id} });
 
-      const { data } = await axios.patch(`/api/messages/seen`, null, { params: {conversationId: conversation.id} });
+    dispatch(msgsSeenByUser(conversation, data.userId));
 
-      dispatch(msgsSeenByUser(conversation, data.userId));
-
-      sendSeenStatus(conversation, data.userId);
-    }
+    sendSeenStatus(conversation, data.userId);
 
   } catch (error) {
     console.error(error);

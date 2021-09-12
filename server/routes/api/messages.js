@@ -55,6 +55,12 @@ router.patch("/seen", async (req, res, next) => {
     const userId = req.user.id;
     const { conversationId } = req.query;
 
+    // check if the user is part of the conversation
+    const convo = await Conversation.findByPk(conversationId);
+    if (![convo.user1Id, convo.user2Id].includes(userId)) {
+      return res.sendStatus(401);
+    }
+
     const updatedMsgs = await Message.update({ seen: true }, 
       { where: { [Op.and]: 
                   [
